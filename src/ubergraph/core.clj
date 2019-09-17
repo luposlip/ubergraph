@@ -938,7 +938,7 @@
   :bmp :dot :eps :gif :ico :jpg :jpeg :pdf :png :ps :ps2 :svgz :tif :tiff :vmlz :wbmp
   Additionally map can contain graph attributes for graphviz like :bgcolor, :label, :splines, ..."
   ([g] (viz-graph g {}))
-  ([g {layout :layout {filename :filename format :format :as save} :save
+  ([g {return-format :format layout :layout {filename :filename format :format :as save} :save
        auto-label :auto-label
        :as opts
        :or {layout :dot}}]
@@ -959,6 +959,7 @@
          d/digraph
          d/dot
          (cond->
-             (and save (= :dot format)) (#(spit filename %))
+             (and save (= :dot format) filename) (#(spit filename %))
              (and save (not= :dot format)) (d/save! filename {:format format})
-             (not save) d/show!)))))
+             (and (not save) (not return-format)) d/show!
+             (and (not save) (= :dot return-format)) identity)))))
